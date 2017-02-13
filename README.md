@@ -37,4 +37,4 @@ light:
 
 That's it! If everythin has worked out, you should have the following interface
 on your HA state screen:
-[HA interface](ha-interface.png)
+![HA interface](ha-interface.png)
