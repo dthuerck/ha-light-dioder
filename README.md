@@ -33,7 +33,9 @@ Then, add the following lines to your ``configuration.yaml``:
 ```
 light:
     platform: pidioder
+    name: My PiDioder
 ```
+Naturally, the name is up to your choice!
 
 That's it! If everythin has worked out, you should have the following interface
 on your HA state screen:

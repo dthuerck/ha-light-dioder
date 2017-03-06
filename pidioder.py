@@ -30,24 +30,32 @@ from math import *
 import smbus
 import time
 import logging
+import voluptuous as vol
 
 # Home assistant stuff - use class from above to setup light access
 from homeassistant.components.light import (
-    ATTR_RGB_COLOR, SUPPORT_RGB_COLOR, Light)
+    ATTR_RGB_COLOR, SUPPORT_RGB_COLOR, Light, PLATFORM_SCHEMA)
+from homeassistant.const import CONF_NAME
+import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_PILIGHT = (SUPPORT_RGB_COLOR)
 
+# Configuration
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
+    vol.Optional(CONF_NAME, default='PiDioder'): cv.string
+})
+
 # HA hook
 def setup_platform(hass, config, add_devices_callback, discovery_info=None):
     # Just add one default PiDioder light with default address
-    add_devices_callback([PiDioderLight(0x40, _LOGGER)])
+    add_devices_callback([PiDioderLight(0x40, _LOGGER, config.get(CONF_NAME))])
 
 # Representation of a polling-type light for HA, using the PiDioder class
 class PiDioderLight(Light):
 
-    def __init__(self, addr, log):
+    def __init__(self, addr, log, name):
         # initialize PiDioder light at I2C address and put to sleep
         self._dev = PiDioder(addr, log)
         self._dev.set_freq(1000)
@@ -55,7 +63,7 @@ class PiDioderLight(Light):
         self._dev.sleep(self._is_sleep)
 
         # HA attributes
-        self._name = "PiDioder hinter TV"
+        self._name = name
         self._state = not self._is_sleep
         self._rgb = (255, 255, 255)
 
