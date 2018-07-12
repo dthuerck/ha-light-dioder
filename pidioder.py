@@ -34,13 +34,14 @@ import voluptuous as vol
 
 # Home assistant stuff - use class from above to setup light access
 from homeassistant.components.light import (
-    ATTR_RGB_COLOR, SUPPORT_RGB_COLOR, Light, PLATFORM_SCHEMA)
+    ATTR_RGB_COLOR, ATTR_HS_COLOR, SUPPORT_COLOR, Light, PLATFORM_SCHEMA)
 from homeassistant.const import CONF_NAME
 import homeassistant.helpers.config_validation as cv
+import homeassistant.util.color as color_util
 
 _LOGGER = logging.getLogger(__name__)
 
-SUPPORT_PILIGHT = (SUPPORT_RGB_COLOR)
+SUPPORT_PILIGHT = (SUPPORT_COLOR)
 
 # Configuration
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -65,7 +66,7 @@ class PiDioderLight(Light):
         # HA attributes
         self._name = name
         self._state = not self._is_sleep
-        self._rgb = (255, 255, 255)
+        self._rgb = (255, 0, 10)
 
     @property
     def should_poll(self):
@@ -96,8 +97,11 @@ class PiDioderLight(Light):
         self._is_sleep = False
         self._dev.sleep(self._is_sleep)
         self._state = not self._is_sleep
+        print(kwargs)
         if ATTR_RGB_COLOR in kwargs:
             self._rgb = kwargs[ATTR_RGB_COLOR]
+        if ATTR_HS_COLOR in kwargs:
+            self._rgb = color_util.color_hsv_to_RGB(kwargs[ATTR_HS_COLOR][0], kwargs[ATTR_HS_COLOR][1], 100)
         self._dev.set_color((self._rgb[0] / 255.0, self._rgb[1] / 255.0, self._rgb[2] / 255.0))
 
         # inform HA about state update
